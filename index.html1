@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VetAcademy - Medicina de Silvestres</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome para Ícones Gamificados -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Nunito para um look amigável/educacional -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Configuração do Tailwind Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Nunito', 'sans-serif'] },
+                    colors: {
+                        primary: '#10b981', /* Emerald 500 */
+                        primaryDark: '#059669', /* Emerald 600 */
+                        secondary: '#f59e0b', /* Amber 500 */
+                        secondaryDark: '#d97706', /* Amber 600 */
+                        tertiary: '#6366f1', /* Indigo 500 */
+                        tertiaryDark: '#4f46e5', /* Indigo 600 */
+                        bgLight: '#f8fafc',
+                    },
+                    boxShadow: {
+                        'btn': '0 6px 0 0 rgba(0,0,0,0.15)',
+                        'btn-active': '0 0px 0 0 rgba(0,0,0,0.15)',
+                        'card': '0 8px 24px -4px rgba(0,0,0,0.1)',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body { background-color: #f8fafc; color: #334155; -webkit-tap-highlight-color: transparent; }
+        
+        /* Botões Gamificados 3D */
+        .btn-3d {
+            transition: all 0.1s ease;
+            box-shadow: 0 5px 0 0 rgba(0,0,0,0.2);
+            position: relative;
+            top: 0;
+        }
+        .btn-3d:active, .btn-3d.active-press {
+            top: 5px;
+            box-shadow: 0 0px 0 0 rgba(0,0,0,0.2);
+        }
+        
+        .btn-3d-green { background-color: #10b981; color: white; box-shadow: 0 5px 0 0 #059669; }
+        .btn-3d-green:active { box-shadow: 0 0px 0 0 #059669; }
+        
+        .btn-3d-red { background-color: #ef4444; color: white; box-shadow: 0 5px 0 0 #b91c1c; }
+        .btn-3d-red:active { box-shadow: 0 0px 0 0 #b91c1c; }
+
+        .btn-3d-indigo { background-color: #6366f1; color: white; box-shadow: 0 5px 0 0 #4338ca; }
+        .btn-3d-indigo:active { box-shadow: 0 0px 0 0 #4338ca; }
+
+        /* Checklist Animado */
+        .check-item { transition: all 0.3s ease; }
+        .check-item.done {
+            background-color: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #94a3b8;
+            text-decoration: line-through;
+            transform: scale(0.98);
+        }
+
+        /* Flashcards 3D */
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+        .flashcard-inner { transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1); }
+        .flipped { transform: rotateY(180deg); }
+        .rotate-y-180 { transform: rotateY(180deg); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="antialiased pb-24">
+
+    <!-- 1. HEADER & PROGRESS DASHBOARD -->
+    <header class="sticky top-0 z-50 bg-white border-b-2 border-slate-200 shadow-sm pt-4 pb-4 px-6">
+        <div class="max-w-4xl mx-auto flex flex-col gap-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-primary rounded-2xl flex items-center justify-center text-white text-2xl shadow-btn">
+                        <i class="fa-solid fa-paw"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-black text-slate-800 leading-none">VetAcademy</h1>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Silvestres - Prof. Celso/Rogério</p>
+                    </div>
+                </div>
+                <div class="bg-secondary bg-opacity-20 text-secondaryDark px-4 py-2 rounded-xl font-black text-sm border-2 border-secondary border-opacity-30 flex items-center gap-2">
+                    <i class="fa-solid fa-fire text-secondary"></i> Prova 05/05
+                </div>
+            </div>
+            
+            <!-- Barra de Progresso XP -->
+            <div class="w-full bg-slate-100 p-3 rounded-2xl border-2 border-slate-200">
+                <div class="flex justify-between items-end mb-2">
+                    <span class="text-sm font-black text-slate-600 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-bolt text-secondary"></i> XP Diário
+                    </span>
+                    <span id="progress-text" class="text-lg font-black text-primary">0%</span>
+                </div>
+                <div class="w-full bg-slate-200 h-4 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="bg-gradient-to-r from-primary to-emerald-400 h-full rounded-full transition-all duration-700 ease-out" style="width: 0%;"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-6 mt-8 space-y-12">
+
+        <!-- 6. GOALS / DAILY CHECKLIST AREA -->
+        <section>
+            <h2 class="text-2xl font-black text-slate-800 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-list-check text-primary"></i> Missões de Estudo
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="checklist-container">
+                <label class="check-item flex items-center gap-4 p-5 bg-white rounded-2xl border-2 border-slate-200 cursor-pointer hover:border-primary shadow-sm">
+                    <input type="checkbox" class="w-6 h-6 accent-primary rounded cursor-pointer" onchange="toggleTask(this)">
+                    <span class="font-bold text-slate-700 text-lg">Dominar Anatomia & Fisiologia</span>
+                </label>
+                <label class="check-item flex items-center gap-4 p-5 bg-white rounded-2xl border-2 border-slate-200 cursor-pointer hover:border-primary shadow-sm">
+                    <input type="checkbox" class="w-6 h-6 accent-primary rounded cursor-pointer" onchange="toggleTask(this)">
+                    <span class="font-bold text-slate-700 text-lg">Revisar Infográficos Visuais</span>
+                </label>
+                <label class="check-item flex items-center gap-4 p-5 bg-white rounded-2xl border-2 border-slate-200 cursor-pointer hover:border-primary shadow-sm">
+                    <input type="checkbox" class="w-6 h-6 accent-primary rounded cursor-pointer" onchange="toggleTask(this)">
+                    <span class="font-bold text-slate-700 text-lg">Praticar com Flashcards</span>
+                </label>
+                <label class="check-item flex items-center gap-4 p-5 bg-white rounded-2xl border-2 border-slate-200 cursor-pointer hover:border-primary shadow-sm">
+                    <input type="checkbox" class="w-6 h-6 accent-primary rounded cursor-pointer" onchange="toggleTask(this)">
+                    <span class="font-bold text-slate-700 text-lg">Gabaritar o Simulado Final</span>
+                </label>
+            </div>
+        </section>
+
+        <!-- 2. INTEGRAL CONTENT HUB (Aprofundado) -->
+        <section>
+            <h2 class="text-2xl font-black text-slate-800 mb-6 flex items-center gap-2">
+                <i class="fa-solid fa-book-open text-primary"></i> Compêndio Teórico
+            </h2>
+
+            <div class="space-y-6">
+                <!-- Artigo: Fisiologia Comparada Profunda -->
+                <article class="bg-white p-6 md:p-8 rounded-3xl border-2 border-slate-200 shadow-card relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-3 h-full bg-tertiary"></div>
+                    <h3 class="text-2xl font-black text-slate-800 mb-6 border-b-2 border-slate-100 pb-4">1. Fisiologia e Anatomia Comparada</h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <!-- Circulação e Coração -->
+                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                            <h4 class="font-black text-tertiaryDark text-lg mb-3 flex items-center gap-2"><i class="fa-solid fa-heart"></i> Coração e Circulação</h4>
+                            <ul class="space-y-3 text-sm font-medium text-slate-600">
+                                <li class="flex gap-2"><i class="fa-solid fa-fish text-tertiary mt-1"></i> <div><b>Peixes:</b> Circulação Simples (passa 1x no coração). 2 cavidades. Só circula sangue venoso.</div></li>
+                                <li class="flex gap-2"><i class="fa-solid fa-frog text-tertiary mt-1"></i> <div><b>Anfíbios:</b> Circulação Dupla e Incompleta. 3 cavidades. Mistura de sangue no ventrículo único.</div></li>
+                                <li class="flex gap-2"><i class="fa-solid fa-snake text-tertiary mt-1"></i> <div><b>Répteis (Não-Crocodilianos):</b> 3 cavidades. A mistura de sangue é minimizada por uma divisão parcial no ventrículo chamada <b>Septo de Sabatier</b>.</div></li>
+                                <li class="flex gap-2"><i class="fa-solid fa-dragon text-tertiary mt-1"></i> <div><b>Crocodilianos:</b> 4 cavidades separadas. Porém, a mistura de sangue venoso/arterial ocorre FORA do coração, no <b>Forame de Panizza</b>.</div></li>
+                                <li class="flex gap-2"><i class="fa-solid fa-dove text-tertiary mt-1"></i> <div><b>Aves:</b> Circulação Completa. 4 cavidades. Arco aórtico voltado para a <b>Direita</b> (mamíferos é para a Esquerda).</div></li>
+                            </ul>
+                        </div>
+
+                        <!-- Respiração -->
+                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                            <h4 class="font-black text-tertiaryDark text-lg mb-3 flex items-center gap-2"><i class="fa-solid fa-lungs"></i> Sistema Respiratório</h4>
+                            <ul class="space-y-3 text-sm font-medium text-slate-600">
+                                <li class="flex gap-2"><i class="fa-solid fa-arrow-right text-tertiary mt-1"></i> <div><b>Aves:</b> Não possuem diafragma. A respiração depende de <b>Sacos Aéreos</b> que permitem um fluxo de ar <i>contínuo e unidirecional</i>. Há oxigenação do sangue tanto na inspiração quanto na expiração. <br><span class="text-red-500 font-bold">Manejo:</span> Nunca restringir o esterno na contenção, causa asfixia.</div></li>
+                                <li class="flex gap-2"><i class="fa-solid fa-arrow-right text-tertiary mt-1"></i> <div><b>Répteis:</b> Também não possuem diafragma funcional (a maioria). Utilizam a musculatura intercostal e celomática para respirar. Em quelônios (tartarugas), a respiração depende do movimento das cinturas escapular e pélvica, pois as costelas são fundidas na carapaça.</div></li>
+                            </ul>
+                        </div>
+
+                        <!-- Excreção e Patologia -->
+                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 md:col-span-2">
+                            <h4 class="font-black text-tertiaryDark text-lg mb-3 flex items-center gap-2"><i class="fa-solid fa-vial"></i> Excreção e Patologia Associada</h4>
+                            <div class="grid md:grid-cols-3 gap-4 mb-4">
+                                <div class="bg-white p-3 rounded-xl border border-slate-200 text-center">
+                                    <div class="font-black text-blue-600">Amoniotélicos</div>
+                                    <div class="text-xs font-bold text-slate-500 mb-1">Amônia</div>
+                                    <div class="text-xs">Peixes. Muito tóxica, requer muita água.</div>
+                                </div>
+                                <div class="bg-white p-3 rounded-xl border border-slate-200 text-center">
+                                    <div class="font-black text-green-600">Ureotélicos</div>
+                                    <div class="text-xs font-bold text-slate-500 mb-1">Ureia</div>
+                                    <div class="text-xs">Mamíferos/Anfíbios. Toxicidade moderada.</div>
+                                </div>
+                                <div class="bg-white p-3 rounded-xl border border-slate-200 text-center border-b-4 border-b-tertiary">
+                                    <div class="font-black text-tertiaryDark">Uricotélicos</div>
+                                    <div class="text-xs font-bold text-slate-500 mb-1">Ácido Úrico</div>
+                                    <div class="text-xs">Aves/Répteis. Insolúvel, altíssima economia de água.</div>
+                                </div>
+                            </div>
+                            <div class="bg-amber-100 border border-amber-300 p-4 rounded-xl text-amber-900 text-sm">
+                                <b><i class="fa-solid fa-triangle-exclamation"></i> Patologia - Gota Visceral/Articular:</b> Como aves e répteis excretam ácido úrico (que é insolúvel), dietas ricas em proteína ou desidratação severa fazem com que esse ácido precipite (cristalize) no sangue, depositando-se nas articulações ou sobre órgãos internos, gerando inflamação severa e dor.
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Artigo: Clínica Cirúrgica e Manejo -->
+                <article class="bg-white p-6 md:p-8 rounded-3xl border-2 border-slate-200 shadow-card relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-3 h-full bg-primary"></div>
+                    <h3 class="text-2xl font-black text-slate-800 mb-6 border-b-2 border-slate-100 pb-4">2. Manejo e Clínica Cirúrgica</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-emerald-50 border-2 border-emerald-200 p-5 rounded-2xl flex flex-col md:flex-row gap-4 items-center">
+                            <div class="bg-white w-16 h-16 rounded-full flex justify-center items-center text-3xl text-primary shrink-0 shadow-sm"><i class="fa-solid fa-syringe"></i></div>
+                            <div>
+                                <h4 class="font-black text-primaryDark text-lg mb-1">O Sistema Porta-Renal</h4>
+                                <p class="text-sm font-medium text-slate-700">Em répteis, o sangue drenado da metade posterior do corpo (cauda, membros pélvicos) passa diretamente para os rins através da veia porta-renal antes de alcançar a circulação sistêmica. <b>Regra Clínica:</b> Nunca injetar medicamentos nefrotóxicos (ex: aminoglicosídeos) ou anestésicos nos membros posteriores. A droga causará falência renal ou será excretada antes de fazer efeito sistêmico.</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                            <h4 class="font-black text-primaryDark text-lg mb-2"><i class="fa-solid fa-notes-medical"></i> Particularidades Clínicas</h4>
+                            <ul class="space-y-3 text-sm font-medium text-slate-600">
+                                <li><b><i class="fa-solid fa-virus text-primary"></i> Abscessos Caseosos:</b> Répteis carecem de enzimas lisossomais para liquefazer o pus, tornando-o sólido (caseoso). Abscessos formam cápsulas impenetráveis a antibióticos. Tratamento: Remoção cirúrgica (exérese) manual completa do abscesso e cápsula.</li>
+                                <li><b><i class="fa-solid fa-temperature-half text-primary"></i> Ectotermia na Anestesia:</b> Temperatura regula o metabolismo. Sem temperatura ótima de conforto (TOC), fármacos não são metabolizados (overdose ou falha anestésica). Aquecimento no pré/trans/pós-cirúrgico é obrigatório.</li>
+                                <li><b><i class="fa-solid fa-mask-ventilator text-primary"></i> Intubação e Fluidoterapia:</b> Intubação exige pressão < 12 cm H2O para não romper pulmões saculiformes. Fluidoterapia (soro) tem absorção de excelência via <b>Intracelomática</b> (10-30ml/Kg/dia).</li>
+                                <li><b><i class="fa-solid fa-eye text-primary"></i> Serpentes Peçonhentas:</b> Identificação pela <b>Fosseta Loreal</b> (termorreceptor). Presente em <i>Bothrops</i> (jararacas) e <i>Crotalus</i> (cascavel). <b>Ausente</b> em <i>Micrurus</i> (Corais verdadeiras).</li>
+                            </ul>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Artigo: Legislação -->
+                <article class="bg-white p-6 md:p-8 rounded-3xl border-2 border-slate-200 shadow-card relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-3 h-full bg-secondary"></div>
+                    <h3 class="text-2xl font-black text-slate-800 mb-4 border-b-2 border-slate-100 pb-4">3. Legislação Ambiental e CITES</h3>
+                    
+                    <p class="text-sm font-medium text-slate-700 mb-4">O Médico Veterinário é co-responsável perante a lei. Animais ilegais ou suspeitos exigem assinatura de Termo de Responsabilidade. Doenças de notificação obrigatória (ex: Influenza Aviária) devem ser reportadas imediatamente aos órgãos sanitários competentes.</p>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="bg-amber-50 p-4 rounded-xl border border-amber-200">
+                            <h4 class="font-black text-secondaryDark mb-2">Categorias de Fauna</h4>
+                            <ul class="text-sm text-amber-900 space-y-1">
+                                <li><b>Fauna Nativa:</b> Espécies cuja distribuição geográfica abrange o território brasileiro (ex: Arara-azul).</li>
+                                <li><b>Fauna Exótica:</b> Não ocorrem naturalmente no Brasil (ex: Corn Snake, Calopsita).</li>
+                            </ul>
+                        </div>
+                        <div class="bg-amber-50 p-4 rounded-xl border border-amber-200">
+                            <h4 class="font-black text-secondaryDark mb-2">Tratado CITES</h4>
+                            <ul class="text-sm text-amber-900 space-y-1">
+                                <li><b>Anexo I:</b> Espécies ameaçadas de extinção. Comércio internacional totalmente proibido (exceto fins científicos estritos).</li>
+                                <li><b>Anexo II:</b> Espécies que não estão ameaçadas, mas cujo comércio deve ser rigidamente regulado para evitar risco de sobrevivência.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- 3. VISUAL INFOGRAPHICS (CSS/Tailwind) -->
+        <section>
+            <h2 class="text-2xl font-black text-slate-800 mb-6 flex items-center gap-2">
+                <i class="fa-solid fa-chart-pie text-primary"></i> Infográficos de Fixação
+            </h2>
+
+            <!-- Infográfico 1: Evolução Cardíaca -->
+            <div class="bg-slate-800 p-6 rounded-3xl shadow-card text-white mb-6">
+                <h3 class="font-black text-lg text-emerald-400 mb-4 uppercase tracking-widest"><i class="fa-solid fa-code-compare"></i> Evolução Cardíaca e Mistura</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <div class="bg-slate-700 p-4 rounded-2xl border-2 border-slate-600 text-center">
+                        <div class="text-3xl text-blue-400 mb-2"><i class="fa-solid fa-fish"></i></div>
+                        <div class="font-black text-sm mb-1">Peixes</div>
+                        <div class="text-xs bg-slate-800 rounded py-1 mb-1">2 Cavidades</div>
+                        <div class="text-xs text-slate-400">Só sangue venoso</div>
+                    </div>
+                    <div class="bg-slate-700 p-4 rounded-2xl border-2 border-slate-600 text-center">
+                        <div class="text-3xl text-emerald-400 mb-2"><i class="fa-solid fa-frog"></i></div>
+                        <div class="font-black text-sm mb-1">Anfíbios</div>
+                        <div class="text-xs bg-slate-800 rounded py-1 mb-1">3 Cavidades</div>
+                        <div class="text-xs text-slate-400">Mistura Total no V.</div>
+                    </div>
+                    <div class="bg-slate-700 p-4 rounded-2xl border-2 border-slate-600 text-center border-b-4 border-b-secondary">
+                        <div class="text-3xl text-secondary mb-2"><i class="fa-solid fa-snake"></i></div>
+                        <div class="font-black text-sm mb-1">Répteis</div>
+                        <div class="text-xs bg-slate-800 rounded py-1 mb-1">3 Cavidades</div>
+                        <div class="text-xs text-amber-300 font-bold">Septo de Sabatier</div>
+                    </div>
+                    <div class="bg-slate-700 p-4 rounded-2xl border-2 border-slate-600 text-center border-b-4 border-b-tertiary">
+                        <div class="text-3xl text-tertiary mb-2"><i class="fa-solid fa-dragon"></i></div>
+                        <div class="font-black text-sm mb-1">Crocodilianos</div>
+                        <div class="text-xs bg-slate-800 rounded py-1 mb-1">4 Cavidades</div>
+                        <div class="text-xs text-indigo-300 font-bold">Forame de Panizza</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Infográfico 2: Fluxograma Abscessos -->
+            <div class="bg-white p-6 rounded-3xl shadow-card border-2 border-slate-200">
+                <h3 class="font-black text-lg text-slate-800 mb-4 uppercase tracking-widest"><i class="fa-solid fa-diagram-project text-tertiary"></i> Fisiopatologia: Abscessos</h3>
+                
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 w-full md:w-1/3 text-center">
+                        <div class="font-black text-red-600 mb-1">Causa</div>
+                        <p class="text-sm font-medium text-slate-600">Falta de enzimas lisossomais específicas nos répteis.</p>
+                    </div>
+                    
+                    <i class="fa-solid fa-arrow-right text-3xl text-slate-300 rotate-90 md:rotate-0"></i>
+                    
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 w-full md:w-1/3 text-center">
+                        <div class="font-black text-secondaryDark mb-1">Consequência</div>
+                        <p class="text-sm font-medium text-slate-600">Pus se torna sólido (caseoso) e forma cápsulas espessas impenetráveis.</p>
+                    </div>
+
+                    <i class="fa-solid fa-arrow-right text-3xl text-slate-300 rotate-90 md:rotate-0"></i>
+
+                    <div class="bg-emerald-50 p-4 rounded-2xl border-2 border-emerald-200 w-full md:w-1/3 text-center shadow-sm">
+                        <div class="font-black text-primaryDark mb-1">Ação Clínica</div>
+                        <p class="text-sm font-bold text-emerald-800">ATB sistêmico não funciona sozinho. Exige remoção cirúrgica total.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. INTERACTIVE FLASHCARD SYSTEM -->
+        <section>
+            <div class="flex justify-between items-end mb-6 border-b-2 border-slate-200 pb-2">
+                <h2 class="text-2xl font-black text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group text-primary"></i> Modo Memória
+                </h2>
+                <span class="bg-slate-200 text-slate-600 px-3 py-1 rounded-full text-xs font-black" id="fc-counter">Card 1 / 6</span>
+            </div>
+
+            <!-- Card Container -->
+            <div class="perspective-1000 w-full h-[320px] mb-8 cursor-pointer" onclick="flipFlashcard()">
+                <div id="flashcard-obj" class="flashcard-inner relative w-full h-full transform-style-3d">
+                    <!-- Frente -->
+                    <div class="absolute w-full h-full backface-hidden bg-white rounded-3xl border-4 border-slate-200 shadow-card flex flex-col justify-center items-center text-center p-8">
+                        <div class="w-16 h-16 bg-tertiary bg-opacity-20 text-tertiaryDark rounded-full flex items-center justify-center text-3xl mb-6"><i class="fa-solid fa-question"></i></div>
+                        <h3 id="fc-front-text" class="text-2xl font-black text-slate-800 leading-tight">Pergunta carregando...</h3>
+                        <div class="absolute bottom-6 text-slate-400 font-bold text-xs uppercase tracking-widest"><i class="fa-solid fa-hand-pointer animate-bounce"></i> Toque para virar</div>
+                    </div>
+                    <!-- Verso -->
+                    <div class="absolute w-full h-full backface-hidden rotate-y-180 bg-tertiary rounded-3xl border-4 border-tertiaryDark shadow-card flex flex-col justify-center items-center text-center p-8 text-white">
+                        <div class="w-16 h-16 bg-white bg-opacity-20 text-white rounded-full flex items-center justify-center text-3xl mb-6"><i class="fa-solid fa-lightbulb"></i></div>
+                        <h3 id="fc-back-text" class="text-xl font-bold leading-relaxed">Resposta carregando...</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controles do Flashcard -->
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="processFlashcard(false)" class="btn-3d btn-3d-red py-4 rounded-2xl font-black text-lg flex justify-center items-center gap-2">
+                    <i class="fa-solid fa-xmark"></i> Errei
+                </button>
+                <button onclick="processFlashcard(true)" class="btn-3d btn-3d-green py-4 rounded-2xl font-black text-lg flex justify-center items-center gap-2">
+                    <i class="fa-solid fa-check"></i> Acertei
+                </button>
+            </div>
+        </section>
+
+        <!-- 5. INTERACTIVE SIMULATED -->
+        <section class="pb-10">
+            <h2 class="text-2xl font-black text-slate-800 mb-6 flex items-center gap-2">
+                <i class="fa-solid fa-gamepad text-primary"></i> Simulado Final
+            </h2>
+
+            <div id="quiz-container" class="bg-white p-6 md:p-8 rounded-3xl shadow-card border-2 border-slate-200">
+                <div class="flex justify-between items-center mb-6">
+                    <div class="bg-slate-100 px-3 py-1.5 rounded-lg text-sm font-black text-slate-500" id="quiz-progress">Q 1/5</div>
+                    <div class="bg-secondary bg-opacity-20 px-3 py-1.5 rounded-lg text-sm font-black text-secondaryDark">Pontos: <span id="quiz-score">0</span></div>
+                </div>
+
+                <h3 id="quiz-question" class="text-xl md:text-2xl font-black text-slate-800 mb-8 leading-snug">Carregando questão...</h3>
+
+                <div id="quiz-options" class="space-y-4">
+                    <!-- Gerado via JS -->
+                </div>
+
+                <div id="quiz-feedback" class="hidden mt-6 p-5 rounded-2xl text-sm font-bold animate-pulse">
+                    <!-- Feedback visual gerado via JS -->
+                </div>
+
+                <button id="quiz-next-btn" onclick="nextQuizQuestion()" class="hidden w-full mt-6 btn-3d btn-3d-indigo py-4 rounded-2xl font-black text-lg">
+                    PRÓXIMA QUESTÃO <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+
+            <!-- Tela de Resultado -->
+            <div id="quiz-result" class="hidden bg-slate-800 text-white p-10 rounded-3xl shadow-card text-center relative overflow-hidden">
+                <i class="fa-solid fa-trophy text-9xl text-secondary absolute -right-4 -bottom-4 opacity-20"></i>
+                <h3 class="text-4xl font-black mb-2 relative z-10">Simulado Concluído!</h3>
+                <p class="text-xl font-medium text-slate-300 mb-8 relative z-10">Sua pontuação: <span id="quiz-final-score" class="text-primary font-black text-3xl">X/5</span></p>
+                <button onclick="restartQuiz()" class="btn-3d btn-3d-green w-full md:w-auto px-10 py-4 rounded-2xl font-black text-lg relative z-10">
+                    <i class="fa-solid fa-rotate-right mr-2"></i> TENTAR NOVAMENTE
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        /* === SISTEMA GERAL DE XP / PROGRESSO === */
+        let totalXPTasks = 4 + 6 + 5; // 4 checklists, 6 flashcards, 5 perguntas
+        let currentXP = 0;
+
+        function gainXP() {
+            if(currentXP < totalXPTasks) {
+                currentXP++;
+                let pct = Math.round((currentXP / totalXPTasks) * 100);
+                document.getElementById('progress-bar').style.width = pct + '%';
+                document.getElementById('progress-text').innerText = pct + '%';
+            }
+        }
+
+        /* === 1. LÓGICA DO CHECKLIST === */
+        function toggleTask(checkbox) {
+            const label = checkbox.closest('.check-item');
+            if(checkbox.checked) {
+                label.classList.add('done');
+                gainXP(); // Ganha XP ao completar tarefa
+            } else {
+                label.classList.remove('done');
+            }
+        }
+
+        /* === 2. LÓGICA DOS FLASHCARDS === */
+        const flashcardsData = [
+            { front: "Qual a diferença anatômica entre o Septo de Sabatier e o Forame de Panizza?", back: "Sabatier é o septo parcial no ventrículo dos répteis (coração 3 cav.). Panizza é um forame externo ao coração dos crocodilianos (coração 4 cav.) que permite mistura sanguínea." },
+            { front: "Por que não tratamos abscessos de répteis apenas com antibióticos?", back: "Porque o pus é sólido (caseoso) e forma cápsulas espessas. O antibiótico não penetra. Exige remoção cirúrgica manual." },
+            { front: "Qual a regra clínica vital envolvendo o Sistema Porta-Renal?", back: "Nunca aplicar medicamentos (especialmente anestésicos ou drogas nefrotóxicas) na metade caudal do corpo, pois irão direto para os rins, causando danos ou excreção prematura." },
+            { front: "O que é a Gota Visceral e por que ela ocorre em Aves/Répteis?", back: "É a precipitação e depósito de cristais de Ácido Úrico nos órgãos e articulações. Ocorre por desidratação severa ou excesso de proteína na dieta." },
+            { front: "Explique a dinâmica respiratória das Aves e o perigo na contenção.", back: "Possuem sacos aéreos (fluxo unidirecional) e não têm diafragma. Respiram pelo movimento do esterno. Restringir o peito na contenção causa morte por asfixia." },
+            { front: "Qual o papel da Temperatura (Ectotermia) na Anestesia de Répteis?", back: "Eles não produzem calor interno. Se a temperatura não for a ótima (TOC), os anestésicos não são metabolizados, causando overdose ou impedindo o retorno anestésico." }
+        ];
+
+        let fcIndex = 0;
+        let isCardFlipped = false;
+        const flashcardObj = document.getElementById('flashcard-obj');
+
+        function loadFlashcard() {
+            document.getElementById('fc-front-text').innerText = flashcardsData[fcIndex].front;
+            document.getElementById('fc-back-text').innerText = flashcardsData[fcIndex].back;
+            document.getElementById('fc-counter').innerText = `Card ${fcIndex + 1} / ${flashcardsData.length}`;
+            isCardFlipped = false;
+            flashcardObj.classList.remove('flipped');
+        }
+
+        function flipFlashcard() {
+            isCardFlipped = !isCardFlipped;
+            if(isCardFlipped) {
+                flashcardObj.classList.add('flipped');
+            } else {
+                flashcardObj.classList.remove('flipped');
+            }
+        }
+
+        function processFlashcard(isCorrect) {
+            gainXP(); // XP por interagir com card
+            fcIndex = (fcIndex + 1) % flashcardsData.length;
+            loadFlashcard();
+        }
+        
+        loadFlashcard(); // Init
+
+        /* === 3. LÓGICA DO SIMULADO (QUIZ) === */
+        const quizData = [
+            {
+                q: "Sobre a legislação ambiental e atuação do Médico Veterinário, assinale a alternativa CORRETA:",
+                opts: [
+                    "O Anexo I da CITES permite a venda livre de espécies nativas.",
+                    "Doenças de notificação obrigatória diagnosticadas em silvestres não precisam ser comunicadas às autoridades.",
+                    "O Médico Veterinário deve exigir/firmar um Termo de Responsabilidade ao atender animais ilegais e reportar doenças de notificação.",
+                    "Fauna Exótica é toda aquela que foi domesticada no Brasil."
+                ],
+                correct: 2,
+                exp: "Perfeito! A responsabilidade legal e sanitária é vital. Doenças como Influenza exigem notificação aos órgãos."
+            },
+            {
+                q: "Uma Iguana chega à clínica com uma fratura na cauda que necessita amputação sob anestesia. Onde NÃO se deve aplicar a anestesia injetável e por quê?",
+                opts: [
+                    "No membro torácico, devido aos sacos aéreos.",
+                    "No membro pélvico, devido ao Sistema Porta-Renal.",
+                    "Via intracelomática, devido ao risco de perfuração do diafragma.",
+                    "Na musculatura dorsal, pois não há absorção."
+                ],
+                correct: 1,
+                exp: "Exato! O Sistema Porta-Renal faria o anestésico ir direto aos rins, podendo causar toxicidade ou excreção imediata."
+            },
+            {
+                q: "As Aves e os Répteis excretam majoritariamente:",
+                opts: [
+                    "Amônia (Amoniotélicos)",
+                    "Ureia (Ureotélicos)",
+                    "Ácido Úrico (Uricotélicos)",
+                    "Creatinina"
+                ],
+                correct: 2,
+                exp: "Certo! O Ácido Úrico é insolúvel e quase atóxico, o que permitiu a evolução reprodutiva no ovo com casca (não envenena o embrião)."
+            },
+            {
+                q: "A Fosseta Loreal é um órgão termorreceptor crucial para identificação de serpentes peçonhentas no Brasil. Ela está AUSENTE no gênero:",
+                opts: [
+                    "Bothrops (Jararaca)",
+                    "Crotalus (Cascavel)",
+                    "Lachesis (Surucucu)",
+                    "Micrurus (Corais verdadeiras)"
+                ],
+                correct: 3,
+                exp: "Isso mesmo! Corais verdadeiras (Micrurus) não possuem a fosseta loreal, enquanto o grupo Crotalinae possui."
+            },
+            {
+                q: "Ao realizar uma cirurgia num jabuti (quelônio), é mandatório mantê-lo aquecido em colchão térmico porque:",
+                opts: [
+                    "Eles são endotérmicos e perdem calor rapidamente pelo plastrão.",
+                    "Eles são ectotérmicos e dependem da temperatura externa para manter o metabolismo e depurar os fármacos anestésicos.",
+                    "O calor amolece a carapaça facilitando o acesso cirúrgico.",
+                    "Para prevenir o choque anafilático induzido pelo anestésico."
+                ],
+                correct: 1,
+                exp: "Sensacional! Sem a Temperatura Ótima de Conforto (TOC), o réptil não metaboliza as drogas."
+            }
+        ];
+
+        let qIndex = 0;
+        let qScore = 0;
+
+        function renderQuiz() {
+            const q = quizData[qIndex];
+            document.getElementById('quiz-progress').innerText = `Questão ${qIndex + 1}/${quizData.length}`;
+            document.getElementById('quiz-score').innerText = qScore;
+            document.getElementById('quiz-question').innerText = q.q;
+            
+            const optsContainer = document.getElementById('quiz-options');
+            optsContainer.innerHTML = '';
+            document.getElementById('quiz-feedback').classList.add('hidden');
+            document.getElementById('quiz-next-btn').classList.add('hidden');
+
+            q.opts.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-5 rounded-2xl border-2 border-slate-200 font-bold text-slate-700 bg-white hover:border-tertiary transition-colors btn-3d";
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(index, btn);
+                optsContainer.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, btnEl) {
+            const q = quizData[qIndex];
+            const allBtns = document.getElementById('quiz-options').children;
+            
+            // Travar opções e remover estilo 3D
+            for(let b of allBtns) { 
+                b.onclick = null; 
+                b.classList.remove('btn-3d', 'hover:border-tertiary'); 
+                b.classList.add('btn-3d-active', 'top-[5px]', 'shadow-none'); 
+            }
+
+            const feedback = document.getElementById('quiz-feedback');
+            feedback.classList.remove('hidden');
+
+            if(selectedIndex === q.correct) {
+                // Acertou
+                btnEl.classList.replace('border-slate-200', 'border-primary');
+                btnEl.classList.add('bg-emerald-50', 'text-primaryDark');
+                qScore++;
+                document.getElementById('quiz-score').innerText = qScore;
+                
+                feedback.className = "mt-6 p-5 rounded-2xl text-sm font-bold bg-emerald-100 text-primaryDark animate-bounce";
+                feedback.innerHTML = `<i class="fa-solid fa-circle-check text-lg mr-2"></i> ${q.exp}`;
+            } else {
+                // Errou
+                btnEl.classList.replace('border-slate-200', 'border-red-500');
+                btnEl.classList.add('bg-red-50', 'text-red-700');
+                
+                // Destacar a certa
+                allBtns[q.correct].classList.replace('border-slate-200', 'border-primary');
+                allBtns[q.correct].classList.add('bg-emerald-50', 'text-primaryDark', 'border-4');
+
+                feedback.className = "mt-6 p-5 rounded-2xl text-sm font-bold bg-red-100 text-red-800";
+                feedback.innerHTML = `<i class="fa-solid fa-circle-xmark text-lg mr-2"></i> Incorreto. O gabarito correto está destacado em verde.`;
+            }
+
+            gainXP(); // XP por responder pergunta
+            document.getElementById('quiz-next-btn').classList.remove('hidden');
+        }
+
+        function nextQuizQuestion() {
+            qIndex++;
+            if(qIndex < quizData.length) {
+                renderQuiz();
+            } else {
+                document.getElementById('quiz-container').classList.add('hidden');
+                document.getElementById('quiz-result').classList.remove('hidden');
+                document.getElementById('quiz-final-score').innerText = `${qScore}/${quizData.length}`;
+            }
+        }
+
+        function restartQuiz() {
+            qIndex = 0;
+            qScore = 0;
+            document.getElementById('quiz-result').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            renderQuiz();
+        }
+
+        renderQuiz(); // Init
+    </script>
+</body>
+</html>
